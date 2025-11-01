@@ -2,23 +2,25 @@ import prisma from "../prisma/prisma-client.js";
 import ApiError from "../exceptions/api-error.js";
 
 class TagService {
-  async getTags({ searchQuery, limit = 8 }) {
-    if (!searchQuery || searchQuery.trim() === "") return [];
-
+  async getTags({ searchQuery = "", limit = 8, isSearch = false }) {
+    const where = (!searchQuery.trim() && !isSearch)
+      ? {}
+      : {
+          name: {
+            endsWith: searchQuery,
+            mode: "insensitive",
+          },
+        };
+  
     const tags = await prisma.tag.findMany({
-      where: {
-        name: {
-          endsWith: searchQuery,
-          mode: "insensitive",
-        },
-      },
+      where,
       take: limit,
       select: {
         id: true,
         name: true,
       },
     });
-
+  
     return tags;
   }
 

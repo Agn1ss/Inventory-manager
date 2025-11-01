@@ -4,12 +4,12 @@ import "./index.css";
 import App from "./App.tsx";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import { I18nSync } from "./language/I18nSync.tsx";
+import AppProviders from "./providers/index.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <I18nSync>
+    <AppProviders>
       <App />
-    </I18nSync>
+    </AppProviders>
   </StrictMode>
 );

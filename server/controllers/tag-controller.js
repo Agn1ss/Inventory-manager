@@ -4,10 +4,11 @@ import tagService from "../services/tag-service.js";
 class TagController {
   async getTags(req, res, next) {
     try {
-      const { search = "", limit = 8 } = req.query;
+      const { search = "", limit = 8,isSearch = false } = req.query;
       const tags = await tagService.getTags({
         search,
         limit: Number(limit),
+        isSearch
       });
   
       return res.json(tags);

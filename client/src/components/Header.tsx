@@ -1,38 +1,75 @@
-import React, { useState } from "react";
 import { Navbar, Container, Button, FormControl, Nav, Dropdown } from "react-bootstrap";
 import { useThisUserStore } from "../store/thisUserStore";
 import { useSettingsStore } from "../store/useSettingsStore";
 import { useTranslation } from "react-i18next";
 import ModalBox from "./modals/ModalBox";
 import AuthModal from "./modals/AuthModal";
+import toast from "react-hot-toast";
+import ApiErrorHandler from "../exeptions/apiErrorHandler";
+import { useDebounceValue } from "../utils/hooks/useDebounceValue";
+import { useInputValue } from "../utils/hooks/useInputValue";
+import { useEffect, useState } from "react";
+import useSearchStore from "../store/searchStore";
+import useInventoryStore from "../store/inventoryStore";
 
-export default function Header() {
+interface HeaderProps {
+  searchPlaceholder: string;
+}
+
+export default function Header({ searchPlaceholder }: HeaderProps) {
   const { theme, toggleTheme, language, setLanguage } = useSettingsStore();
-  const { isAuth, logout } = useThisUserStore();
+  const { user, isAuth, logout } = useThisUserStore();
   const { t, i18n } = useTranslation();
+  const { clearSelectedTagName } = useInventoryStore();
+  const { searchTerm, setSearchTerm } = useSearchStore();
 
   const [showLogin, setShowLogin] = useState(false);
+
+  const [localInput, setLocalInput, handleInputChange] = useInputValue(searchTerm);
+  const debouncedInput = useDebounceValue(localInput, 500);
+
+  useEffect(() => {
+    setSearchTerm(debouncedInput);
+    clearSelectedTagName();
+  }, [debouncedInput]);
 
   const handleLanguageChange = (lang: "en" | "ru") => {
     setLanguage(lang);
     i18n.changeLanguage(lang);
   };
 
+  const handleLogout = async () => {
+    const toastId = toast.loading(t("loading"));
+    try {
+      await logout();
+      toast.success(t("logout") + " " + t("successful"), { id: toastId });
+    } catch (error) {
+      const message = ApiErrorHandler.handle(error);
+      toast.error(message, { id: toastId });
+    }
+  };
+
   return (
     <>
       <header className="w-100 fixed-top shadow">
-        <Navbar expand="lg" className="py-3 px-2">
+        <Navbar expand="lg" className="py-3 px-2 bg-body-tertiary shadow border-bottom">
           <Container
             fluid
             className="position-relative d-flex justify-content-between align-items-center"
           >
-            <Button style={{ minWidth: "50px" }} variant="secondary" onClick={toggleTheme}>
-              {theme === "light" ? "🌞" : "🌜"}
-            </Button>
+            <div className="d-flex align-items-center gap-2">
+              <Button style={{ minWidth: "50px" }} variant="secondary" onClick={toggleTheme}>
+                {theme === "light" ? "🌞" : "🌜"}
+              </Button>
+
+              {isAuth && <Navbar.Text className="fw-bold mb-0">{user?.name}</Navbar.Text>}
+            </div>
 
             <FormControl
               type="search"
-              placeholder={t("search_inv")}
+              placeholder={t(searchPlaceholder)}
+              value={localInput}
+              onChange={handleInputChange}
               className="position-absolute start-50 translate-middle-x"
               style={{ maxWidth: "300px" }}
             />
@@ -49,7 +86,11 @@ export default function Header() {
               </Dropdown>
 
               {isAuth ? (
-                <Button variant="outline-danger" style={{ minWidth: "80px" }} onClick={logout}>
+                <Button
+                  variant="outline-danger"
+                  style={{ minWidth: "80px" }}
+                  onClick={handleLogout}
+                >
                   {t("logout")}
                 </Button>
               ) : (

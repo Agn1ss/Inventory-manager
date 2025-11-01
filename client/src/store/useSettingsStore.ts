@@ -15,12 +15,12 @@ interface SettingsState {
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
-      theme: "light",
+      theme: "dark",
       language: "en",
 
       setTheme: (theme) => set({ theme }),
       toggleTheme: () =>
-        set((state) => ({ theme: state.theme === "light" ? "dark" : "light" })),
+        set((state) => ({ theme: state.theme === "dark" ? "light" : "dark" })),
 
       setLanguage: (language) => set({ language }),
     }),

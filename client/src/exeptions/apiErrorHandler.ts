@@ -1,4 +1,4 @@
-import i18n from "../language/i18";
+import i18n from "../providers/language/i18";
 
 export default class ApiErrorHandler {
   static ERROR_NORMALIZERS = {

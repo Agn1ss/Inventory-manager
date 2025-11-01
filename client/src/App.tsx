@@ -1,16 +1,12 @@
-import { useState } from "react";
-import { Toaster } from "react-hot-toast";
+import { BrowserRouter as Router } from "react-router-dom";
+import AppRoutes from "./routers/AppRouters";
 import "./App.css";
-import MainPage from "./pages/MainPage";
-import ThemeProvider from "./components/ThemeProvider";
 
 function App() {
   return (
-    <>
-      <ThemeProvider />
-      <MainPage></MainPage>
-      <Toaster position="top-right" reverseOrder={false} />
-    </>
+    <Router>
+      <AppRoutes />
+    </Router>
   );
 }
 

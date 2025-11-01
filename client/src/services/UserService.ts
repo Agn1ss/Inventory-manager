@@ -1,5 +1,5 @@
 import $api from "../http";
-import type { IUser } from "../models/response/IUser";
+import type { IUser } from "../models/interface/IUser";
 
 export default class UserService {
   static fetchUsers(search: string, skip: number, take: number, sortBy: string) {

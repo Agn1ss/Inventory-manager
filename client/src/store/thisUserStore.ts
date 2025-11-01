@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { IUser } from "../models/response/IUser";
+import type { IUser } from "../models/interface/IUser";
 import AuthService from "../services/AuthService";
 
 interface UserState {

@@ -9,6 +9,8 @@ export default class InventoryDto {
     this.customIdTypeId = inventory.customIdTypeId;
     this.isPublic = inventory.isPublic;
     this.version = inventory.version;
+    this.createdAt = inventory.createdAt;
+    this.updatedAt = inventory.updatedAt;
 
     this.customFields = {
       string: [

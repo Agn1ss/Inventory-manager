@@ -35,7 +35,7 @@ $api.interceptors.response.use(
       } catch (e) {
         await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
         localStorage.removeItem("token");
-        window.location.href = "/login";
+        window.location.href = "/";
       }
     }
 

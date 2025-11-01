@@ -42,13 +42,14 @@ export default function AuthModal({ setShowLogin }: AuthModalProps) {
     const action = button?.value as "login" | "registration";
 
     if (isEmailValid && isNameValid && isPassValid) {
+      const toastId = toast.loading(t("loading"));
       try {
         await actionTypes[action]();
-        toast.success(action + " " + t("successful"));
+        toast.success(action + " " + t("successful"), { id: toastId });
         setShowLogin(false);
       } catch (error: any) {
         const message = ApiErrorHandler.handle(error, action);
-        toast.error(message);
+        toast.error(message, { id: toastId });
       }
     }
   };

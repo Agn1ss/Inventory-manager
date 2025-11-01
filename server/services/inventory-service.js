@@ -43,93 +43,91 @@ class InventoryService {
   }
 
   async update(inventoryId, inventoryData) {
-    return await prisma.$transaction(async tx => {
-      const existingInventory = await tx.inventory.findUnique({
-        where: { id: inventoryId },
-        select: { id: true, version: true, customIdTypeId: true },
-      });
-
-      if (!existingInventory) {
-        throw ApiError.BadRequest(`Inventory with id "${inventoryId}" not found`);
-      }
-
-      if (existingInventory.version !== inventoryData.version) {
-        throw ApiError.BadRequest(
-          `Inventory was updated by someone else. Expected version ${inventoryData.version}, but found ${existingInventory.version}`
-        );
-      }
-
-      const customIdType = await customIdTypeController.update(
-        existingInventory.customIdTypeId,
-        inventoryData.customIdType
-      );
-
-      let categoryName = inventoryData.categoryName ?? "various";
-
-      let category = await tx.category.findUnique({
-        where: { name: categoryName },
-      });
-      if (!category) {
-        category = await tx.category.create({ data: { name: categoryName } });
-      }
-
-      const fields = [
-        ["title", inventoryData.title, () => true],
-        ["description", inventoryData.description, () => true],
-        ["imageUrl", inventoryData.imageUrl, () => true],
-        ["categoryId", category.id, () => true],
-        ["creatorId", inventoryData.creatorId, () => true],
-        ["customIdTypeId", customIdType.id, () => true],
-        ["isPublic", inventoryData.isPublic, () => true],
-      ];
-
-      if (inventoryData.customFields) {
-        const types = ["string", "text", "int", "link", "bool"];
-        types.forEach(type => {
-          inventoryData.customFields[type]?.forEach((field, index) => {
-            const prefix = `custom${type.charAt(0).toUpperCase() + type.slice(1)}${index + 1}`;
-            fields.push([`${prefix}State`, field.state, () => true]);
-            if (field.name !== "NONE") {
-              fields.push([`${prefix}Name`, field.name, () => true]);
-              fields.push([`${prefix}Description`, field.description, () => true]);
-              fields.push([`${prefix}Order`, field.order, () => true]);
-            }
-          });
+    return await prisma.$transaction(
+      async tx => {
+        const existingInventory = await tx.inventory.findUnique({
+          where: { id: inventoryId },
+          select: { id: true, version: true, customIdTypeId: true },
         });
-      }
-
-      const data = filterKeysByCondition(fields);
-
-      const inventory = await tx.inventory.update({
-        where: {
-          id: inventoryId,
-        },
-        data: {
-          ...data,
-          version: { increment: 1 },
-        },
-      });
-
-      let tags = [];
-      const tagResult = await tagService.setInventoryTags(inventoryData.tags, inventory.id, tx);
-      if (tagResult.success) {
-        tags = inventoryData.tags;
-      }
-
-      if (inventoryData.editorsId) {
-        await inventoryService.setInventoryEditors(inventory.id, inventoryData.editorsId, tx);
-      }
-
-      const inventoryDto = new InventoryDto(inventory);
-
-      return {
-        inventory: inventoryDto,
-        tags: tags,
-        category: categoryName,
-        customIdType: customIdType,
-      };
-    });
+  
+        if (!existingInventory) {
+          throw ApiError.BadRequest(`Inventory with id "${inventoryId}" not found`);
+        }
+  
+        if (existingInventory.version !== inventoryData.version) {
+          throw ApiError.BadRequest(
+            `Inventory was updated by someone else. Expected version ${inventoryData.version}, but found ${existingInventory.version}`
+          );
+        }
+  
+        const customIdType = await customIdTypeController.update(
+          existingInventory.customIdTypeId,
+          inventoryData.customIdType
+        );
+  
+        let categoryName = inventoryData.categoryName ?? "various";
+  
+        let category = await tx.category.findUnique({
+          where: { name: categoryName },
+        });
+        if (!category) {
+          category = await tx.category.create({ data: { name: categoryName } });
+        }
+  
+        const fields = [
+          ["title", inventoryData.title, () => true],
+          ["description", inventoryData.description, () => true],
+          ["imageUrl", inventoryData.imageUrl, () => true],
+          ["categoryId", category.id, () => true],
+          ["customIdTypeId", customIdType.id, () => true],
+          ["isPublic", inventoryData.isPublic, () => true],
+        ];
+  
+        if (inventoryData.customFields) {
+          const types = ["string", "text", "int", "link", "bool"];
+          types.forEach(type => {
+            inventoryData.customFields[type]?.forEach((field, index) => {
+              const prefix = `custom${type.charAt(0).toUpperCase() + type.slice(1)}${index + 1}`;
+              fields.push([`${prefix}State`, field.state, () => true]);
+              if (field.name !== "NONE") {
+                fields.push([`${prefix}Name`, field.name, () => true]);
+                fields.push([`${prefix}Description`, field.description, () => true]);
+                fields.push([`${prefix}Order`, field.order, () => true]);
+              }
+            });
+          });
+        }
+  
+        const data = filterKeysByCondition(fields);
+  
+        const inventory = await tx.inventory.update({
+          where: { id: inventoryId },
+          data: { ...data, version: { increment: 1 } },
+        });
+  
+        let tags = [];
+        const tagResult = await tagService.setInventoryTags(inventoryData.tags, inventory.id, tx);
+        if (tagResult.success) {
+          tags = inventoryData.tags;
+        }
+  
+        if (inventoryData.editorsId) {
+          await inventoryService.setInventoryEditors(inventory.id, inventoryData.editorsId, tx);
+        }
+  
+        const inventoryDto = new InventoryDto(inventory);
+  
+        return {
+          inventory: inventoryDto,
+          tags: tags,
+          category: categoryName,
+          customIdType: customIdType,
+        };
+      },
+      { timeout: 15000 }
+    );
   }
+  
 
   async getInventory(id) {
     const inventory = await prisma.inventory.findUnique({
@@ -287,8 +285,7 @@ class InventoryService {
       title: inv.title,
       description: inv.description,
       imageUrl: inv.imageUrl,
-      creatorName: inv.creator.name,
-      itemsCount: inv._count.items,
+      creatorName: inv.creator.name
     }));
 
     return inventoriesData;
