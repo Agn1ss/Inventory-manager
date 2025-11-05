@@ -2,13 +2,13 @@ import ApiError from "../exceptions/api-error.js";
 import prisma from "../prisma/prisma-client.js";
 
 class CategoryService {
-  async getCategories({ searchQuery, limit = 8 }) {
-    if (!searchQuery || searchQuery.trim() === "") return [];
+  async getCategories({ search, limit = 8 }) {
+    if (!search || search.trim() === "") return [];
 
     const categories = await prisma.category.findMany({
       where: {
         name: {
-          contains: searchQuery,
+          contains: search,
           mode: "insensitive",
         },
       },

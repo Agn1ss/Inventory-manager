@@ -1,15 +1,15 @@
 import { useTranslation } from "react-i18next";
-import type InventoriesDataResponse from "../models/response/InvDataResponse";
+import type InventorylistDataResponse from "../../../models/response/InventorylistDataResponse";
 import InventoryRow from "./InventoryRow";
 
 interface InventoryTableProps {
-  data: InventoriesDataResponse[];
+  inventoriesData: InventorylistDataResponse[];
 }
 
-export default function InventoryTableBox({ data }: InventoryTableProps) {
+export default function InventoryTableBox({ inventoriesData: data }: InventoryTableProps) {
   const { t } = useTranslation();
   return (
-    <table className="table text-start align-middle">
+    <table className="table table-hover text-start align-middle">
       <thead>
         <tr>
           <th>{t("title")}</th>
@@ -19,9 +19,7 @@ export default function InventoryTableBox({ data }: InventoryTableProps) {
       </thead>
       <tbody>
         {data.map(row => (
-          <tr key={row.id}>
             <InventoryRow row={row} />
-          </tr>
         ))}
       </tbody>
     </table>

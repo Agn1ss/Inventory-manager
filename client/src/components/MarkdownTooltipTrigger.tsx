@@ -4,7 +4,7 @@ import ReactDOMServer from "react-dom/server";
 import { Tooltip } from "bootstrap";
 
 interface MarkdownTooltipTriggerProps {
-  content: string;
+  content?: string | null;
   width?: number;
   children: React.ReactNode;
 }
@@ -17,30 +17,36 @@ export default function MarkdownTooltipTrigger({
   const ref = useRef<HTMLSpanElement | null>(null);
 
   useEffect(() => {
-    if (ref.current) {
-      const tooltipContent = document.createElement("div");
-      tooltipContent.style.maxWidth = `${width}px`;
-      tooltipContent.style.textAlign = "left";
-      tooltipContent.style.whiteSpace = "normal";
-      tooltipContent.innerHTML = renderMarkdownToHtml(content);
+    if (!ref.current || !content) return;
 
-      new Tooltip(ref.current, {
-        html: true,
-        title: tooltipContent,
-        placement: "auto",
-      });
-    }
+    const tooltipContent = document.createElement("div");
+    tooltipContent.style.maxWidth = `${width}px`;
+    tooltipContent.style.textAlign = "left";
+    tooltipContent.style.whiteSpace = "normal";
+    tooltipContent.innerHTML = renderMarkdownToHtml(content);
+
+    const tooltip = new Tooltip(ref.current, {
+      html: true,
+      title: tooltipContent,
+      placement: "auto",
+    });
+
+    return () => tooltip.dispose();
   }, [content, width]);
 
+  if (!content) {
+    return <>{children}</>;
+  }
+
   return (
-    <span ref={ref} className="cursor-pointer">
+    <span ref={ref} style={{ cursor: "pointer" }}>
       {children}
     </span>
   );
 }
 
+
 function renderMarkdownToHtml(markdown: string): string {
-  return ReactDOMServer.renderToStaticMarkup(
-    <ReactMarkdown>{markdown}</ReactMarkdown>
-  );
+  const element = <ReactMarkdown>{markdown}</ReactMarkdown>;
+  return ReactDOMServer.renderToString(element);
 }

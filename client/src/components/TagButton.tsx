@@ -1,13 +1,13 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 
-interface TagProps {
+interface TagButtonProps {
   name: string;
   onSelectTag: () => void;
   isSelected?: boolean;
 }
 
-const Tag: React.FC<TagProps> = ({ name, onSelectTag, isSelected = false }) => {
+const TagButton: React.FC<TagButtonProps> = ({ name, onSelectTag, isSelected = false }) => {
   return (
     <Button
       variant={isSelected ? "primary" : "outline-secondary"}
@@ -20,4 +20,4 @@ const Tag: React.FC<TagProps> = ({ name, onSelectTag, isSelected = false }) => {
   );
 };
 
-export default Tag;
+export default TagButton;

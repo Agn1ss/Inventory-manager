@@ -1,16 +1,18 @@
-import React, { useEffect } from "react";
-import useInventoryStore from "../store/inventoryStore";
-import Tag from "./Tag";
+import React, { useEffect, useState } from "react";
+import useInventoryListStore from "../store/inventoryListStore";
+import TagButton from "./TagButton";
 import ApiErrorHandler from "../exeptions/apiErrorHandler";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import type { number } from "react-i18next/icu.macro";
 
 const TagSection: React.FC = () => {
-  const { tagList, fetchTags, fetchInventoriesByTag, selectedTagName } = useInventoryStore();
+  const { tagList, fetchTags, fetchInventoriesByTag, selectedTagName } = useInventoryListStore();
   const { t } = useTranslation();
+  const [localSelectTag, setLocalSelectTag] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchTags("").catch(err => {
+    fetchTags("",20).catch(err => {
       const message = ApiErrorHandler.handle(err);
       toast.error(message);
     });
@@ -18,12 +20,22 @@ const TagSection: React.FC = () => {
 
   const handleSelect = async (tagId: string) => {
     try {
+      setLocalSelectTag(tagId)
       await fetchInventoriesByTag(tagId);
     } catch (err) {
       const message = ApiErrorHandler.handle(err);
       toast.error(message);
+      setLocalSelectTag(null)
     }
   };
+
+  useEffect(() => {
+    if(!selectedTagName) {
+      setLocalSelectTag(null)
+    }
+  }, [selectedTagName]);
+
+  
 
   return (
     <div className="tag-section mb-6">
@@ -33,10 +45,10 @@ const TagSection: React.FC = () => {
           <p>Loading...</p>
         ) : (
           tagList.data.map(tag => (
-            <Tag
+            <TagButton
               key={tag.id}
               name={tag.name}
-              isSelected={selectedTagName === tag.name}
+              isSelected={localSelectTag === tag.id}
               onSelectTag={() => handleSelect(tag.id)}
             />
           ))

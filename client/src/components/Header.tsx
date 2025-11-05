@@ -1,4 +1,5 @@
 import { Navbar, Container, Button, FormControl, Nav, Dropdown } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { useThisUserStore } from "../store/thisUserStore";
 import { useSettingsStore } from "../store/useSettingsStore";
 import { useTranslation } from "react-i18next";
@@ -10,17 +11,19 @@ import { useDebounceValue } from "../utils/hooks/useDebounceValue";
 import { useInputValue } from "../utils/hooks/useInputValue";
 import { useEffect, useState } from "react";
 import useSearchStore from "../store/searchStore";
-import useInventoryStore from "../store/inventoryStore";
+import useInventoryListStore from "../store/inventoryListStore";
+import { Link } from "react-router-dom";
 
 interface HeaderProps {
-  searchPlaceholder: string;
+  searchPlaceholder?: string;
 }
 
 export default function Header({ searchPlaceholder }: HeaderProps) {
+  const navigate = useNavigate();
   const { theme, toggleTheme, language, setLanguage } = useSettingsStore();
   const { user, isAuth, logout } = useThisUserStore();
   const { t, i18n } = useTranslation();
-  const { clearSelectedTagName } = useInventoryStore();
+  const { clearSelectedTagName } = useInventoryListStore();
   const { searchTerm, setSearchTerm } = useSearchStore();
 
   const [showLogin, setShowLogin] = useState(false);
@@ -43,6 +46,7 @@ export default function Header({ searchPlaceholder }: HeaderProps) {
     try {
       await logout();
       toast.success(t("logout") + " " + t("successful"), { id: toastId });
+      navigate("/");
     } catch (error) {
       const message = ApiErrorHandler.handle(error);
       toast.error(message, { id: toastId });
@@ -59,20 +63,28 @@ export default function Header({ searchPlaceholder }: HeaderProps) {
           >
             <div className="d-flex align-items-center gap-2">
               <Button style={{ minWidth: "50px" }} variant="secondary" onClick={toggleTheme}>
-                {theme === "light" ? "🌞" : "🌜"}
+                {theme === "light" ? "☀️" : "🌑"}
               </Button>
 
-              {isAuth && <Navbar.Text className="fw-bold mb-0">{user?.name}</Navbar.Text>}
+              {isAuth && (
+                <Navbar.Text className="fw-bold mb-0">
+                  <Link to={`/user/${user?.id}`} className="text-decoration-none fs-5 fw-bold">
+                    {user?.name}
+                  </Link>
+                </Navbar.Text>
+              )}
             </div>
 
-            <FormControl
-              type="search"
-              placeholder={t(searchPlaceholder)}
-              value={localInput}
-              onChange={handleInputChange}
-              className="position-absolute start-50 translate-middle-x"
-              style={{ maxWidth: "300px" }}
-            />
+            {searchPlaceholder && (
+              <FormControl
+                type="search"
+                placeholder={t(searchPlaceholder)}
+                value={localInput}
+                onChange={handleInputChange}
+                className="position-absolute start-50 translate-middle-x"
+                style={{ maxWidth: "300px" }}
+              />
+            )}
 
             <Nav className="d-flex align-items-center">
               <Dropdown>

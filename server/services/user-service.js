@@ -172,6 +172,7 @@ class UserService {
           ],
         }
       : {};
+  
     const inventories = await prisma.inventory.findMany({
       where: {
         creatorId: userId,
@@ -184,12 +185,21 @@ class UserService {
         title: true,
         description: true,
         imageUrl: true,
-        creatorId: true,
-        categoryId: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
-
-    return inventories;
+  
+    return inventories.map(inv => ({
+      id: inv.id,
+      title: inv.title,
+      description: inv.description,
+      imageUrl: inv.imageUrl,
+      categoryName: inv.category.name,
+    }));
   }
 
   async getUserEditableInventories({ userId, search = "", skip = 0, take = 20 }) {
@@ -218,14 +228,27 @@ class UserService {
         title: true,
         description: true,
         imageUrl: true,
-        creatorId: true,
-        categoryId: true,
+        creator: {
+          select: { name: true },
+        },
+        _count: {
+          select: { items: true },
+        },
       },
     });
 
-    return inventories;
+    const inventoriesData = inventories.map(inv => ({
+      id: inv.id,
+      title: inv.title,
+      description: inv.description,
+      imageUrl: inv.imageUrl,
+      creatorName: inv.creator.name
+    }));
+
+    return inventoriesData;
   }
 }
 
 const userService = new UserService();
 export default userService;
+

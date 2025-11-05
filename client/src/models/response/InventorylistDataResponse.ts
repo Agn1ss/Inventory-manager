@@ -1,4 +1,4 @@
-export default interface InventoriesDataResponse {
+export default interface InventorylistDataResponse {
 id: string;
 title: string;
 description?: string;

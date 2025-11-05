@@ -1,54 +1,52 @@
 import $api from "../http";
-import type { IInventory } from "../models/interface/IInventory";
-import type InventoriesDataResponse from "../models/response/InvDataResponse";
-
-// export interface ICreateInventoryDto {
-//   // пример полей для создания инвентаря
-//   name: string;
-//   description?: string;
-//   items?: any[];
-// }
-
-// export interface IUpdateInventoryDto {
-//   // пример полей для обновления инвентаря
-//   name?: string;
-//   description?: string;
-//   items?: any[];
-// }
+import type InventorylistDataResponse from "../models/response/InventorylistDataResponse";
+import type { InventoryResponse } from "../models/response/InventoryResponse";
+import type UserInventoryDataResponse from "../models/response/UserInventoryDataResponse";
 
 export default class InventoryService {
-  // static createInventory(data: ICreateInventoryDto) {
-  //   return $api.post<IInventory>("/inventory/create", data);
-  // }
+  static async createInventory() {
+    return $api.post<InventoryResponse>("/inventory/create");
+  }
 
-  // static updateInventory(id: string, data: IUpdateInventoryDto) {
-  //   return $api.put<IInventory>(`/inventory/${id}/update`, data);
-  // }
+  static async updateInventory(id: string, data: InventoryResponse) {
+    return $api.post<InventoryResponse>(`/inventory/${id}/update`, data);
+  }
 
-  // static getInventory(id: string) {
-  //   return $api.get<IInventory>(`/inventory/${id}`);
-  // }
-
-  static searchInventories(
-    search: string,
-    skip: number,
-    take: number,
-    newest: boolean
-  ) {
-    return $api.get<InventoriesDataResponse[]>("/inventory/inventories", {
+  static searchInventories(search: string, skip: number, take: number, newest: boolean) {
+    return $api.get<InventorylistDataResponse[]>("/inventory/inventories", {
       params: { search, skip, take, newest },
     });
   }
 
   static getMostPopularInventories(limit: number) {
-    return $api.get<InventoriesDataResponse[]>(`/inventory/inventories/popular`, {
+    return $api.get<InventorylistDataResponse[]>(`/inventory/inventories/popular`, {
       params: { limit },
     });
   }
 
   static getInventoriesByTag(tagId: string, skip = 0, take = 20) {
-    return $api.get<InventoriesDataResponse[]>(`/inventory/tags/${tagId}/inventories`, {
+    return $api.get<InventorylistDataResponse[]>(`/inventory/tags/${tagId}/inventories`, {
       params: { tagId, skip, take },
     });
+  }
+
+  static getUserInventories(search = "", skip = 0, take = 20) {
+    return $api.get<UserInventoryDataResponse[]>("/inventories", {
+      params: { search, skip, take },
+    });
+  }
+
+  static deleteMany(ids: string[]) {
+    return $api.post("/inventory/delete-many", { ids });
+  }
+
+  static getUserEditableInventories(search = "", skip = 0, take = 20) {
+    return $api.get<InventorylistDataResponse[]>("/inventories/editable", {
+      params: { search, skip, take },
+    });
+  }
+
+  static getInventory(id: string) {
+    return $api.get<InventoryResponse>(`/inventory/${id}`);
   }
 }

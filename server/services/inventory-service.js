@@ -124,7 +124,7 @@ class InventoryService {
           customIdType: customIdType,
         };
       },
-      { timeout: 15000 }
+      { timeout: 20000 }
     );
   }
   
@@ -156,7 +156,7 @@ class InventoryService {
     return {
       inventory: inventoryDto,
       tags: inventory.tags.map(t => t.name),
-      category: inventory.category?.name || null,
+      category: inventory.category.name,
       customIdType: inventory.customIdType,
     };
   }
@@ -258,6 +258,16 @@ class InventoryService {
       imageUrl: inv.imageUrl,
       creatorName: inv.creator.name,
     }));
+  }
+
+  async deleteMany(inventoryIds = []) {
+    if (!Array.isArray(inventoryIds) || inventoryIds.length === 0) {
+      throw ApiError.BadRequest("No inventories specified for deletion");
+    }
+  
+    await prisma.inventory.deleteMany({
+      where: { id: { in: inventoryIds } },
+    });
   }
 
   async getMostPopularInventories(limit = 5) {

@@ -8,7 +8,7 @@ class TagController {
       const tags = await tagService.getTags({
         search,
         limit: Number(limit),
-        isSearch
+        isSearch: isSearch === "true"
       });
   
       return res.json(tags);
@@ -23,6 +23,16 @@ class TagController {
       const tag = await tagService.getOne(id);
   
       return res.json(tag);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getInventoryTags(req, res, next) {
+    try {
+      const { id } = req.params;
+      const tags = await tagService.getInventoryTags(id);
+      return res.json(tags);
     } catch (e) {
       next(e);
     }

@@ -20,42 +20,51 @@ class InventoryController {
   async update(req, res, next) {
     try {
       const id = req.params.id;
-      const  inventoryData  = req.body;
+      const inventoryData = {
+        ...req.body.inventory,
+        tags: req.body.tags,
+        category: req.body.category,
+        customIdType: req.body.customIdType,
+      };
       const updatedInventoryData = await inventoryService.update(id, inventoryData);
-  
+
       return res.json(updatedInventoryData);
     } catch (e) {
       next(e);
     }
   }
-  
+
   async getInventoryData(req, res, next) {
     try {
       const id = req.params.id;
       const inventoryData = await inventoryService.getInventory(id);
-  
+
       if (!inventoryData) {
         return next(ApiError.NotFound("Inventory not found"));
       }
-  
+
       return res.json(inventoryData);
     } catch (e) {
       next(e);
     }
   }
 
+  async deleteMany(req, res, next) {
+    try {
+      const { ids } = req.body;
 
+      await inventoryService.deleteMany(ids);
+      return res.sendStatus(204);
+    } catch (e) {
+      next(e);
+    }
+  }
 
   async getInventoryEditors(req, res, next) {
     try {
       const id = req.params.id;
-      const {
-        search = "",
-        skip = 0,
-        take = 20,
-        sortBy = "name",
-      } = req.query;
-  
+      const { search = "", skip = 0, take = 20, sortBy = "name" } = req.query;
+
       const editors = await inventoryService.getInventoryEditors({
         inventoryId: id,
         search,
@@ -63,30 +72,24 @@ class InventoryController {
         take: Number(take),
         sortBy,
       });
-  
+
       return res.json(editors);
     } catch (e) {
       next(e);
     }
   }
 
-
   async searchInventories(req, res, next) {
     try {
-      const {
-        search = "",
-        skip = 0,
-        limit = 5,
-        newest = false,
-      } = req.query;
-  
+      const { search = "", skip = 0, limit = 5, newest = false } = req.query;
+
       const inventoriesData = await inventoryService.searchInventories({
         search,
         skip: Number(skip),
         take: Number(limit),
         newest: newest === "true" || newest === true,
       });
-  
+
       return res.json(inventoriesData);
     } catch (e) {
       next(e);
@@ -103,7 +106,6 @@ class InventoryController {
       next(e);
     }
   }
-
 }
 
 const inventoryController = new InventoryController();

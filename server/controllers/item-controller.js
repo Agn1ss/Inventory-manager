@@ -27,6 +27,18 @@ class ItemController {
     }
   }
 
+  async getItems(req, res, next) {
+    try {
+      const inventoryId = req.params.id;
+      const { skip = 0, take = 20, search = "" } = req.query;
+
+      const items = await itemService.getItems(inventoryId, Number(skip), Number(take), search);
+      return res.json(items);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async update(req, res, next) {
     try {
       const inventoryId = req.params.id;
@@ -51,6 +63,16 @@ class ItemController {
     }
   }
 
+  async deleteMany(req, res, next) {
+    try {
+      const { itemIds } = req.body;
+      await itemService.deleteMany(itemIds);
+      return res.json({ message: `${itemIds.length} items deleted successfully` });
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async like(req, res, next) {
     try {
       const itemId = req.params.itemId;
@@ -61,7 +83,6 @@ class ItemController {
       next(e);
     }
   }
-
 }
 
 const itemController = new ItemController();

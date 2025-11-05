@@ -1,5 +1,5 @@
 import TablePlaceholder from "../components/placeholders/TablePlaceholder";
-import InventoryTableBox from "../components/InventoryTableBox";
+import InventoryTableBox from "./boxes/inventoryTable/InventoryTableBox";
 import { useTranslation } from "react-i18next";
 
 interface SearchResultSectionProps {
@@ -24,7 +24,7 @@ const SearchResultSection: React.FC<SearchResultSectionProps> = ({
       ) : (
         <>
           {data.length ? (
-            <InventoryTableBox data={data} />
+            <InventoryTableBox inventoriesData={data} />
           ) : (
             <h4 className="text-xl text-secondary font-semibold m-5 w-50 mx-auto text-center">
               {t("no_results_found")}

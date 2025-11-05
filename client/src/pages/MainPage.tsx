@@ -5,16 +5,17 @@ import { useTranslation } from "react-i18next";
 import Header from "../components/Header";
 import InventorySection from "../components/InventorySection";
 import TagSection from "../components/TagSection";
-import useInventoryStore from "../store/inventoryStore";
+import useInventoryListStore from "../store/inventoryListStore";
 import useSearchStore from "../store/searchStore";
 import { COLUMNS } from "../utils/data/names";
 import toast from "react-hot-toast";
 import ApiErrorHandler from "../exeptions/apiErrorHandler";
 import SearchResultSection from "../components/SearchResultSection";
-import type InventoriesDataResponse from "../models/response/InvDataResponse";
+import type InventorylistDataResponse from "../models/response/InventorylistDataResponse";
+import InventoryTableBox from "../components/boxes/inventoryTable/InventoryTableBox";
 
 interface InventoryListState {
-  data: InventoriesDataResponse[];
+  data: InventorylistDataResponse[];
   loading: boolean;
 }
 
@@ -22,7 +23,6 @@ export default function MainPage() {
   const { t } = useTranslation();
   const { searchTerm } = useSearchStore();
   const [searchData, setSearchData] = useState<InventoryListState>({ data: [], loading: true });
-  const { inventoriesByTag, selectedTagName } = useInventoryStore();
 
   const {
     fetchSearchInventories,
@@ -30,7 +30,9 @@ export default function MainPage() {
     fetchLatestInventories,
     popularInventories,
     fetchPopularInventories,
-  } = useInventoryStore();
+    inventoriesByTag,
+    selectedTagName,
+  } = useInventoryListStore();
 
   useEffect(() => {
     if (selectedTagName) {
@@ -39,7 +41,7 @@ export default function MainPage() {
       setSearchData({ data: [], loading: true });
       fetchSearchInventories(searchTerm)
         .then(() => {
-          const state = useInventoryStore.getState();
+          const state = useInventoryListStore.getState();
           setSearchData(state.searchResults);
         })
         .catch(err => {
@@ -62,17 +64,19 @@ export default function MainPage() {
               title={t("latest_inventories")}
               columns={COLUMNS}
               fetchData={fetchLatestInventories}
-              data={latestInventories.data}
               loading={latestInventories.loading}
-            />
+              >
+              <InventoryTableBox inventoriesData={latestInventories.data} />
+            </InventorySection>
 
             <InventorySection
               title={t("popular_inventories")}
               columns={COLUMNS}
               fetchData={fetchPopularInventories}
-              data={popularInventories.data}
               loading={popularInventories.loading}
-            />
+            >
+              <InventoryTableBox inventoriesData={popularInventories.data} />
+            </InventorySection>
           </Col>
 
           <Col md={6} className="d-flex flex-column gap-3">

@@ -16,6 +16,8 @@ $api.interceptors.request.use((config) => {
   return config;
 });
 
+import { eventBus } from "./events";
+
 $api.interceptors.response.use(
   (config) => config,
   async (error) => {
@@ -33,15 +35,15 @@ $api.interceptors.response.use(
 
         return $api.request(originalRequest);
       } catch (e) {
-        await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
         localStorage.removeItem("token");
+        eventBus.emit("logout");
         window.location.href = "/";
       }
     }
 
     if (error.response?.status === 403) {      
-      await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
       localStorage.removeItem("token");
+      eventBus.emit("logout");
       window.location.href = "/login";
     }
 
@@ -50,3 +52,5 @@ $api.interceptors.response.use(
 );
 
 export default $api;
+
+

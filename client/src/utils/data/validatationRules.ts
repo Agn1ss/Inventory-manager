@@ -17,3 +17,12 @@ export const PASS_RULES = new Map<(f: string) => boolean, string>([
   [f => !/^[A-Za-z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+$/.test(f), t("password_invalid_characters")],
   [f => f.length < 5,t("password_min_length_5")],
 ]);
+
+export const TITLE_RULES = new Map<(f: string) => boolean, string>([
+  [f => !f.trim(), "Title is required"],
+  [f => f.length > 30, "Title must be at most 30 characters"],
+]);
+
+export const DESCRIPTION_RULES = new Map<(f: string) => boolean, string>([
+  [f => f.length > 1000, "Description must be at most 200 characters"],
+]);

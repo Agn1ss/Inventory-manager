@@ -2,12 +2,12 @@ import prisma from "../prisma/prisma-client.js";
 import ApiError from "../exceptions/api-error.js";
 
 class TagService {
-  async getTags({ searchQuery = "", limit = 8, isSearch = false }) {
-    const where = (!searchQuery.trim() && !isSearch)
+  async getTags({ search = "", limit = 8, isSearch = false }) {
+    const where = (!search.trim() && !isSearch)
       ? {}
       : {
           name: {
-            endsWith: searchQuery,
+            endsWith: search,
             mode: "insensitive",
           },
         };
@@ -22,6 +22,26 @@ class TagService {
     });
   
     return tags;
+  }
+
+  async getInventoryTags(inventoryId) {
+    const inventory = await prisma.inventory.findUnique({
+      where: { id: inventoryId },
+      select: {
+        tags: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+  
+    if (!inventory) {
+      throw new ApiError.NotFound(`Inventory ${inventoryId} not found`);
+    }
+  
+    return inventory.tags;
   }
 
   async setInventoryTags(tags, inventoryId, tx) {

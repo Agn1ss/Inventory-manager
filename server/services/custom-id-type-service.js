@@ -22,9 +22,7 @@ class CustomIdTypeService {
 
     const data = filterKeysByCondition(fields);
 
-    if (Object.keys(data).length > 0) {
-      data.isTypeNotEmpty = true;
-    }
+    data.isTypeNotEmpty = fields.some(([, value]) => !!value );
 
     const updatedType = await prisma.customIdType.update({
       where: { id },

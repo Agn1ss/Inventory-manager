@@ -26,10 +26,10 @@ inventoryRouter.post(
 
 inventoryRouter.get(
   "/:id",
-  authMiddleware,
-  inventoryAccessMiddleware({ allowEditors: false }),
   inventoryController.getInventoryData
 );
+
+inventoryRouter.get("/:id/tags", tagController.getInventoryTags);
 
 inventoryRouter.get(
   "/:id/editors",
@@ -38,8 +38,19 @@ inventoryRouter.get(
   inventoryController.getInventoryEditors
 );
 
+inventoryRouter.post(
+  "/delete-many",
+  authMiddleware,
+  inventoryController.deleteMany
+);
+
 inventoryRouter.get("/:id/comments", authMiddleware, commentController.getComments);
 inventoryRouter.post("/:id/comments/create", authMiddleware, commentController.createComment);
+
+inventoryRouter.get(
+  "/:id/items",
+  itemController.getItems
+);
 
 inventoryRouter.post(
   "/:id/items/create",
@@ -53,6 +64,13 @@ inventoryRouter.post(
   authMiddleware,
   inventoryAccessMiddleware({ allowEditors: true }),
   itemController.update
+);
+
+inventoryRouter.post(
+  "/:id/items/delete-many",
+  authMiddleware,
+  inventoryAccessMiddleware({ allowEditors: true }),
+  itemController.deleteMany
 );
 
 inventoryRouter.patch("/:id/items/:itemId/like", authMiddleware, itemController.like);
