@@ -1,4 +1,5 @@
 import $api from "../http";
+import type { IUser } from "../models/interface/IUser";
 import type { AuthResponse } from "../models/response/AuthResponse";
 
 export default class AuthService {
@@ -28,7 +29,7 @@ export default class AuthService {
 
   static async fetchCurrentUser() {
     try {
-      return await $api.get<AuthResponse>("/oauth/me");
+      return await $api.get<IUser>("/me");
     } catch (error) {
       throw error;
     }

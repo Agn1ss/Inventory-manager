@@ -13,6 +13,7 @@ import SearchResultSection from "../components/SearchResultSection";
 import type InventorylistDataResponse from "../models/response/InventorylistDataResponse";
 import InventoryTableBox from "../components/boxes/inventoryTable/InventoryTableBox";
 import { COLUMNS } from "../utils/data/names";
+import { useThisUserStore } from "../store/thisUserStore";
 
 interface InventoryListState {
   data: InventorylistDataResponse[];
@@ -23,6 +24,7 @@ export default function MainPage() {
   const { t } = useTranslation();
   const { searchTerm } = useSearchStore();
   const [searchData, setSearchData] = useState<InventoryListState>({ data: [], loading: true });
+  const {fetchCurrentUser} = useThisUserStore()
 
   const {
     fetchSearchInventories,
@@ -33,6 +35,11 @@ export default function MainPage() {
     inventoriesByTag,
     selectedTagName,
   } = useInventoryListStore();
+
+  useEffect(() => {
+    console.log("fetch")
+    fetchCurrentUser();
+  }, []);
 
   useEffect(() => {
     if (selectedTagName) {

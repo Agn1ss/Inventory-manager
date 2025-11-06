@@ -25,7 +25,9 @@ userRouter.post(
 userRouter.post("/login", userController.login);
 userRouter.post("/logout", userController.logout);
 userRouter.get("/refresh", userController.refresh);
+
 userRouter.get("/users", userController.getUsers);
+userRouter.get("/me", authMiddleware, userController.getCurrentUser);
 userRouter.get("/inventories", authMiddleware, userController.getUserInventories);
 userRouter.get("/inventories/editable", authMiddleware, userController.getUserEditableInventories);
 userRouter.delete("/users/:id/delete",authMiddleware, roleMiddleware(["ADMIN"]), userController.delete);

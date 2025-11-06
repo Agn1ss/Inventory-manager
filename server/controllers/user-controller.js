@@ -23,14 +23,8 @@ class UserController {
 
   async login(req, res, next) {
     try {
-      let userData;
-
-      if (req.user) {
-        userData = await userService.loginOAuth(req.user);
-      } else {
-        const { name, email, password } = req.body;
-        userData = await userService.login(name, email, password);
-      }
+      const { name, email, password } = req.body;
+      const userData = await userService.login(name, email, password);
 
       res.cookie("refreshToken", userData.refreshToken, {
         maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -80,6 +74,19 @@ class UserController {
         httpOnly: true,
       });
       return res.json(userData);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getCurrentUser(req, res, next) {
+    try {
+      if (!req.user) {
+        throw ApiError.UnauthorizedError()
+      }
+
+      const userDto = await userService.getById(req.user.id);
+      return res.json(userDto);
     } catch (e) {
       next(e);
     }

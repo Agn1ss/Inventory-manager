@@ -87,6 +87,14 @@ class UserService {
     return { ...tokens, user: userDto };
   }
 
+  async getById(id) {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw ApiError.BadRequest("User not found");
+    }
+    return new UserDto(user);
+  }
+
   async getUsers({ search = "", skip = 0, take = 20, sortBy = "name" }) {
     const queryOptions = {
       where: search
