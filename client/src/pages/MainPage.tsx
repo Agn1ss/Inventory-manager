@@ -36,10 +36,10 @@ export default function MainPage() {
     selectedTagName,
   } = useInventoryListStore();
 
-  useEffect(() => {
-    console.log("fetch")
-    fetchCurrentUser();
-  }, []);
+  // useEffect(() => {
+  //   console.log("fetch")
+  //   fetchCurrentUser();
+  // }, []);
 
   useEffect(() => {
     if (selectedTagName) {
