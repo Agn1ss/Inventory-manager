@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { Form, Button, Col, Row, Card } from "react-bootstrap";
 import { TITLE_RULES } from "../utils/data/validatationRules";
 import useValidationField from "../utils/hooks/useValidationField";
@@ -31,7 +31,7 @@ export default function CustomFieldEditor({}) {
   const [type, setType] = useState<keyof ICustomFields>(defaultField.type);
   const [visible, setVisible] = useState(defaultField.visible);
   const [nameErrors, isNameValid] = useValidationField(name, TITLE_RULES);
-  const { addCustomField, invUpdateData } = useThisInventoryStore();
+  const { addCustomField } = useThisInventoryStore();
 
   const handleAdd = async () => {
     if (!isNameValid) return;

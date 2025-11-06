@@ -1,5 +1,4 @@
 import { Navbar, Container, Button, FormControl, Nav, Dropdown, Form } from "react-bootstrap";
-import { House } from "react-bootstrap-icons";
 import { useNavigate, Link } from "react-router-dom";
 import { useThisUserStore } from "../store/thisUserStore";
 import { useSettingsStore } from "../store/useSettingsStore";
@@ -28,7 +27,7 @@ export default function Header({ searchPlaceholder }: HeaderProps) {
   const { searchTerm, setSearchTerm } = useSearchStore();
 
   const [showLogin, setShowLogin] = useState(false);
-  const [localInput, setLocalInput, handleInputChange] = useInputValue(searchTerm);
+  const [localInput, _, handleInputChange] = useInputValue(searchTerm);
   const debouncedInput = useDebounceValue(localInput, 500);
 
   useEffect(() => {

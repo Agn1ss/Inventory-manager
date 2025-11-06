@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, Col, Row, Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import useValidationField from "../utils/hooks/useValidationField";
@@ -6,10 +6,10 @@ import { TITLE_RULES } from "../utils/data/validatationRules";
 import useThisInventoryStore from "../store/thisInventoryStore";
 import TagSelector from "./tagSelector/TagSelector";
 import CustomFieldEditor from "./CustomFieldEditor";
-import CustomFieldsTable from "./boxes/customField/customFieldsTable";
 import type { ICustomFields } from "../models/interface/IInventory";
 import toast from "react-hot-toast";
 import ApiErrorHandler from "../exeptions/apiErrorHandler";
+import CustomFieldsTable from "./boxes/customField/customFieldsTable";
 
 interface FieldUpdateFormProps {}
 
