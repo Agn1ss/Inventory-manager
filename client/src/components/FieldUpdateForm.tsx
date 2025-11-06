@@ -9,7 +9,7 @@ import CustomFieldEditor from "./CustomFieldEditor";
 import type { ICustomFields } from "../models/interface/IInventory";
 import toast from "react-hot-toast";
 import ApiErrorHandler from "../exeptions/apiErrorHandler";
-import CustomFieldsTable from "./boxes/customField/customFieldsTable";
+import CustomFieldsTable from "./boxes/customField/СustomFieldsTable";
 
 interface FieldUpdateFormProps {}
 
