@@ -14,7 +14,7 @@ class CustomIdTypeService {
 
   async update(id, updateData) {
     const fields = [
-      ["fixedText", updateData.fixedText, v => v && v.trim() !== ""],
+      ["fixedText", updateData.fixedText, () => true],
       ["randomType", updateData.randomType, () => true],
       ["dateFormat", updateData.dateFormat, () => true],
       ["sequenceName", updateData.sequenceName, () => true],

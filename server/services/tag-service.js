@@ -3,15 +3,16 @@ import ApiError from "../exceptions/api-error.js";
 
 class TagService {
   async getTags({ search = "", limit = 8, isSearch = false }) {
-    const where = (!search.trim() && !isSearch)
-      ? {}
-      : {
-          name: {
-            endsWith: search,
-            mode: "insensitive",
-          },
-        };
-  
+    const where =
+      !search.trim() && !isSearch
+        ? {}
+        : {
+            name: {
+              startsWith: search,
+              mode: "insensitive",
+            },
+          };
+
     const tags = await prisma.tag.findMany({
       where,
       take: limit,
@@ -20,7 +21,7 @@ class TagService {
         name: true,
       },
     });
-  
+
     return tags;
   }
 
@@ -36,11 +37,11 @@ class TagService {
         },
       },
     });
-  
+
     if (!inventory) {
       throw new ApiError.NotFound(`Inventory ${inventoryId} not found`);
     }
-  
+
     return inventory.tags;
   }
 
@@ -80,7 +81,6 @@ class TagService {
     return { success: true };
   }
 
-
   async getOne(id) {
     const tag = await prisma.tag.findUnique({ where: { id } });
     if (!tag) {
@@ -88,14 +88,13 @@ class TagService {
     }
     return tag;
   }
-  
 
-  async getInventoriesByTag({ tagId, skip = 0, take = 20 }) {
+  async getInventoriesByTag({ id, skip = 0, take = 20 }) {
     const inventories = await prisma.inventory.findMany({
       where: {
         tags: {
           some: {
-            id: tagId,
+            id: id,
           },
         },
       },
@@ -111,7 +110,7 @@ class TagService {
         },
       },
     });
-  
+
     return inventories.map(inv => ({
       id: inv.id,
       title: inv.title,
@@ -120,7 +119,6 @@ class TagService {
       creatorName: inv.creator.name,
     }));
   }
-
 }
 
 const tagService = new TagService();

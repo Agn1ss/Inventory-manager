@@ -1,11 +1,13 @@
 import { create } from "zustand";
 import InventoryService from "../services/inventoryService";
 import ItemService from "../services/itemService";
-import type { ICustomFields } from "../models/interface/IInventory";
+import type { ICustomField, ICustomFields } from "../models/interface/IInventory";
 import type { IItem } from "../models/interface/IItem";
 import type { InventoryResponse } from "../models/response/InventoryResponse";
 import type { ITag } from "../models/interface/ITag";
 import tagService from "../services/tagService";
+import findNextOrder from "../utils/functions/findNextOrder";
+import type { ICustomIdType } from "../models/interface/ICustomIdType";
 
 export type FieldState = "NONE" | "NOT_VISIBLE" | "VISIBLE";
 
@@ -28,7 +30,12 @@ interface ThisInventoryState {
   fetchInventory: (id: string) => Promise<void>;
   createInventory: () => Promise<void>;
   updateInventory: () => Promise<void>;
-  fetchThisInventoryItems: (id: string, search?: string, skip?: number, take?: number) => Promise<void>;
+  fetchThisInventoryItems: (
+    id: string,
+    search?: string,
+    skip?: number,
+    take?: number
+  ) => Promise<void>;
   fetchInventoryTags: (inventoryId: string) => Promise<void>;
   deleteItems: (inventoryId: string, itemIds: string[]) => Promise<void>;
   clearInventory: () => void;
@@ -40,6 +47,9 @@ interface ThisInventoryState {
   updateCategory: (category: string) => void;
 
   addCustomField: (field: CustomFieldInput) => void;
+  deleteSelectedCustomFields: (keys: string[]) => void;
+
+  updateCustomId: (data: Partial<ICustomIdType>) => void;
 
   commitChanges: () => void;
   hasChanges: () => boolean;
@@ -92,6 +102,7 @@ const useThisInventoryStore = create<ThisInventoryState>((set, get) => ({
     try {
       await InventoryService.updateInventory(invUpdateData.inventory.id, invUpdateData);
       set({ invData: invUpdateData });
+
     } finally {
       set({ loading: false });
     }
@@ -146,6 +157,7 @@ const useThisInventoryStore = create<ThisInventoryState>((set, get) => ({
   updateTags: (tags: string[] | null) =>
     set(state => ({
       invUpdateData: state.invUpdateData ? { ...state.invUpdateData, tags } : null,
+      inventoryTags: tags ? tags.map(name => ({ id: crypto.randomUUID(), name })) : [],
     })),
 
   updateCategory: (category: string) =>
@@ -153,31 +165,65 @@ const useThisInventoryStore = create<ThisInventoryState>((set, get) => ({
       invUpdateData: state.invUpdateData ? { ...state.invUpdateData, category } : null,
     })),
 
+  updateCustomId: (data: Partial<ICustomIdType>) => {
+    const state = get();
+    if (!state.invUpdateData) return;
+
+    const prev = state.invUpdateData.customIdType;
+
+    set({
+      invUpdateData: {
+        ...state.invUpdateData,
+        customIdType: {
+          ...prev,
+          ...data,
+          fixedText:
+            data.fixedText !== undefined
+              ? data.fixedText === ""
+                ? ""
+                : data.fixedText
+              : prev.fixedText,
+        },
+      },
+    });
+    console.log(state.invUpdateData.customIdType.fixedText);
+  },
+
   addCustomField: async field => {
     const state = get();
     if (!state.invUpdateData) throw new Error("No inventory data");
 
     const { type, name, description, visible } = field;
     const fields = state.invUpdateData.inventory.customFields[type];
-    const emptyIndex = fields.findIndex(f => f.state === "NONE");
 
-    if (emptyIndex === -1) {
+    const activeCount = fields.filter(f => f.state !== "NONE").length;
+    if (activeCount >= 3) {
       throw new Error(`Cannot add more than 3 fields of type "${type}"`);
     }
 
-    const usedOrders = fields
-      .filter(f => f.state !== "NONE" && f.order != null)
-      .map(f => f.order as number);
+    const emptyField = [...fields]
+      .sort((a, b) => {
+        const aNum = parseInt(a.key.match(/\d+$/)?.[0] || "9999");
+        const bNum = parseInt(b.key.match(/\d+$/)?.[0] || "9999");
+        return aNum - bNum;
+      })
+      .find(f => f.state === "NONE");
 
-    const nextOrder = usedOrders.length ? Math.max(...usedOrders) + 1 : 1;
+    if (!emptyField) {
+      throw new Error(`No available slot for type "${type}"`);
+    }
 
-    const updatedField = {
-      ...fields[emptyIndex],
+    const nextOrder = findNextOrder(state.invUpdateData.inventory.customFields);
+
+    const updatedField: ICustomField<any> = {
+      ...emptyField,
       name,
       description,
       order: nextOrder,
       state: visible ? "VISIBLE" : "NOT_VISIBLE",
     };
+
+    const updatedFields = fields.map(f => (f.key === emptyField.key ? updatedField : f));
 
     set({
       invUpdateData: {
@@ -186,8 +232,35 @@ const useThisInventoryStore = create<ThisInventoryState>((set, get) => ({
           ...state.invUpdateData.inventory,
           customFields: {
             ...state.invUpdateData.inventory.customFields,
-            [type]: [...fields.slice(0, emptyIndex), updatedField, ...fields.slice(emptyIndex + 1)],
+            [type]: updatedFields,
           },
+        },
+      },
+    });
+  },
+
+  deleteSelectedCustomFields: (keys: string[]) => {
+    const state = get();
+    if (!state.invUpdateData) return;
+
+    const updatedCustomFields = { ...state.invUpdateData.inventory.customFields };
+
+    Object.keys(updatedCustomFields).forEach(type => {
+      updatedCustomFields[type as keyof typeof updatedCustomFields] = updatedCustomFields[
+        type as keyof typeof updatedCustomFields
+      ].map(f =>
+        keys.includes(f.key)
+          ? { ...f, name: null, description: null, order: null, state: "NONE" }
+          : f
+      );
+    });
+
+    set({
+      invUpdateData: {
+        ...state.invUpdateData,
+        inventory: {
+          ...state.invUpdateData.inventory,
+          customFields: updatedCustomFields,
         },
       },
     });

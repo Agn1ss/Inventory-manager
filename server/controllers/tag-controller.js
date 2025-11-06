@@ -40,11 +40,11 @@ class TagController {
 
   async getInventoriesByTag(req, res, next) {
     try {
-      const { tagId } = req.params;
+      const { id } = req.params;
       const { skip = 0, take = 20 } = req.query;
   
       const inventories = await tagService.getInventoriesByTag({
-        tagId,
+        id,
         skip: Number(skip),
         take: Number(take),
       });

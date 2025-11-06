@@ -26,11 +26,14 @@ const valueTypes = {
   },
 };
 
-export default function getFieldValue (fields: IItemCustomFields, key: string) {
+export default function getFieldValue(fields: IItemCustomFields, key: string) {
   const types: (keyof IItemCustomFields)[] = ["string", "text", "int", "link", "bool"];
   for (const type of types) {
     const field = fields[type].find(f => f.key === key);
-    if (field) return valueTypes[type](field.value);
+    if (field) {
+      const value = valueTypes[type](field.value);
+      return value !== null ? value : "-";
+    }
   }
-  return null;
+  return "-";
 };

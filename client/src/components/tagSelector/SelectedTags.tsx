@@ -7,7 +7,7 @@ interface SelectedTagsProps {
 
 export default function SelectedTags({ tags, onRemove }: SelectedTagsProps) {
   return (
-    <div className="mt-2 d-flex flex-wrap gap-3">
+    <div className="mt-2 d-flex flex-wrap gap-2">
       {tags.map(tag => (
         <Badge
           key={tag.id}

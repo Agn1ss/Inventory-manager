@@ -3,7 +3,6 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import Header from "../components/Header";
 import InventorySection from "../components/InventorySection";
 import useInventoryListStore from "../store/inventoryListStore";
-import { COLUMNS } from "../utils/data/names";
 import toast from "react-hot-toast";
 import ApiErrorHandler from "../exeptions/apiErrorHandler";
 import type UserInventoryDataResponse from "../models/response/UserInventoryDataResponse";
@@ -15,6 +14,7 @@ import EditableInventoryTableBox from "../components/boxes/editbleInventoryTable
 import InventoryTableBox from "../components/boxes/inventoryTable/InventoryTableBox";
 import useThisInventoryStore from "../store/thisInventoryStore";
 import { useNavigate } from "react-router-dom";
+import { COLUMNS } from "../utils/data/names";
 
 export default function UserPage() {
   const { t } = useTranslation();

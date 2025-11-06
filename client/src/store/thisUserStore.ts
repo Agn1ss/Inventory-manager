@@ -2,7 +2,10 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { IUser } from "../models/interface/IUser";
 import AuthService from "../services/AuthService";
+import UserService from "../services/UserService";
 import { eventBus } from "../http/events";
+
+type AccessLevel = "OWNER" | "EDITOR" | "NONE";
 
 interface UserState {
   user: IUser | null;
@@ -11,11 +14,13 @@ interface UserState {
   login: (name: string, email: string, password: string) => Promise<void>;
   registration: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+
+  getInventoryAccessLevel: (inventoryId: string, ownerId: string) => Promise<AccessLevel>;
 }
 
 export const useThisUserStore = create<UserState>()(
   persist(
-    set => {
+    (set, get) => {
       eventBus.on("logout", () => {
         set({ user: null, isAuth: false });
       });
@@ -27,42 +32,41 @@ export const useThisUserStore = create<UserState>()(
         setUser: user => set({ user, isAuth: true }),
 
         login: async (name, email, password) => {
-          try {
-            const response = await AuthService.login(name, email, password);
-            localStorage.setItem("token", response.data.accessToken);
-            set({ user: response.data.user, isAuth: true });
-          } catch (e: any) {
-            throw e;
-          }
+          const response = await AuthService.login(name, email, password);
+          localStorage.setItem("token", response.data.accessToken);
+          set({ user: response.data.user, isAuth: true });
         },
 
         registration: async (name, email, password) => {
-          try {
-            const response = await AuthService.registration(name, email, password);
-            localStorage.setItem("token", response.data.accessToken);
-            set({ user: response.data.user, isAuth: true });
-          } catch (e: any) {
-            throw e;
-          }
+          const response = await AuthService.registration(name, email, password);
+          localStorage.setItem("token", response.data.accessToken);
+          set({ user: response.data.user, isAuth: true });
         },
 
         logout: async () => {
+          await AuthService.logout();
+          localStorage.removeItem("token");
+          set({ user: null, isAuth: false });
+        },
+
+        getInventoryAccessLevel: async (inventoryId: string, ownerId: string): Promise<AccessLevel> => {
+          const user = get().user;
+
+          if (!user) return "NONE";
+
+          if (user.role === "ADMIN" || user.id === ownerId) return "OWNER";
+
           try {
-            await AuthService.logout();
-            localStorage.removeItem("token");
-            set({ user: null, isAuth: false });
-          } catch (e: any) {
-            throw e;
+            const res = await UserService.fetchInventoryEditors(inventoryId, "", 0, 100, "name");
+            const isEditor = res.data.some(u => u.id === user.id);
+            return isEditor ? "EDITOR" : "NONE";
+          } catch (err) {
+            console.error(err);
+            return "NONE";
           }
         },
       };
     },
-    {
-      name: "this-user-store",
-    }
+    { name: "this-user-store" }
   )
 );
-function t(arg0: string): import("react-hot-toast").Renderable | import("react-hot-toast").ValueFunction<import("react-hot-toast").Renderable, import("react-hot-toast").Toast> {
-  throw new Error("Function not implemented.");
-}
-

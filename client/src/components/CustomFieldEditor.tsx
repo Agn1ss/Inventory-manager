@@ -15,11 +15,9 @@ interface CustomFieldInput {
   visible: boolean;
 }
 
-interface CustomFieldEditorProps {
-  // onAdd: (field: CustomField) => void;
-}
 
-export default function CustomFieldEditor({}: CustomFieldEditorProps) {
+
+export default function CustomFieldEditor({}) {
   const defaultField = {
     name: "Name",
     description: "",
@@ -32,21 +30,22 @@ export default function CustomFieldEditor({}: CustomFieldEditorProps) {
   const [description, setDescription] = useState(defaultField.description);
   const [type, setType] = useState<keyof ICustomFields>(defaultField.type);
   const [visible, setVisible] = useState(defaultField.visible);
-  const [customField, setCustomField] = useState<CustomFieldInput>(defaultField);
   const [nameErrors, isNameValid] = useValidationField(name, TITLE_RULES);
   const { addCustomField, invUpdateData } = useThisInventoryStore();
 
   const handleAdd = async () => {
     if (!isNameValid) return;
     const toastId = toast.loading(t("loading"));
-    setCustomField({
+
+    const newField: CustomFieldInput = {
       name: name.trim(),
       description: description.trim(),
       type,
       visible,
-    })
+    };
+
     try {
-      await addCustomField(customField);
+      await addCustomField(newField);
 
       setName(defaultField.name);
       setDescription("");
@@ -54,7 +53,6 @@ export default function CustomFieldEditor({}: CustomFieldEditorProps) {
       setVisible(false);
 
       toast.success(`${t("add")} ${t("successful")}`, { id: toastId });
-      console.log(invUpdateData?.inventory.customFields)
     } catch (error) {
       const message = ApiErrorHandler.handle(error, "customField");
       toast.error(message, { id: toastId });
@@ -71,67 +69,67 @@ export default function CustomFieldEditor({}: CustomFieldEditorProps) {
         Add Custom Field
       </Card.Header>
       <Card.Body className="px-3 py-1">
-          <Row>
-            <Col>
-              <Form.Group className="form-floating mb-3">
-                <Form.Control
-                  type="text"
-                  placeholder="Name"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  isInvalid={!isNameValid}
-                  maxLength={20}
-                />
-                <Form.Label>Name</Form.Label>
-                <Form.Control.Feedback type="invalid">{nameErrors[0]}</Form.Control.Feedback>
-              </Form.Group>
+        <Row>
+          <Col>
+            <Form.Group className="form-floating mb-3">
+              <Form.Control
+                type="text"
+                placeholder="Name"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                isInvalid={!isNameValid}
+                maxLength={20}
+              />
+              <Form.Label>Name</Form.Label>
+              <Form.Control.Feedback type="invalid">{nameErrors[0]}</Form.Control.Feedback>
+            </Form.Group>
 
-              <Form.Group className="mb-3">
-                <Form.Select
-                  value={type}
-                  onChange={e => setType(e.target.value as keyof ICustomFields)}
-                >
-                  <option value="string">Single line</option>
-                  <option value="text">Multi line</option>
-                  <option value="number">Number</option>
-                  <option value="link">Link</option>
-                  <option value="boolean">Boolean</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
+            <Form.Group className="mb-3">
+              <Form.Select
+                value={type}
+                onChange={e => setType(e.target.value as keyof ICustomFields)}
+              >
+                <option value="string">Single line</option>
+                <option value="text">Multi line</option>
+                <option value="int">Number</option>
+                <option value="link">Link</option>
+                <option value="bool">Boolean</option>
+              </Form.Select>
+            </Form.Group>
+          </Col>
 
-            <Col>
-              <Form.Group className="form-floating mb-3">
-                <Form.Control
-                  as="textarea"
-                  placeholder="Description"
-                  value={description}
-                  onChange={e => setDescription(e.target.value)}
-                  style={{ height: "80px" }}
-                />
-                <Form.Label>Description</Form.Label>
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row className="align-items-end">
-            <Col className="d-flex align-items-end">
-              <Form.Group className="mb-0 d-flex align-items-center">
-                <span className="me-2 fs-6">Visible</span>
-                <Form.Check
-                  type="checkbox"
-                  checked={visible}
-                  onChange={e => setVisible(e.target.checked)}
-                  style={{ margin: 0 }}
-                />
-              </Form.Group>
-            </Col>
+          <Col>
+            <Form.Group className="form-floating mb-3">
+              <Form.Control
+                as="textarea"
+                placeholder="Description"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                style={{ height: "80px" }}
+              />
+              <Form.Label>Description</Form.Label>
+            </Form.Group>
+          </Col>
+        </Row>
+        <Row className="align-items-end">
+          <Col className="d-flex align-items-end">
+            <Form.Group className="mb-0 d-flex align-items-center">
+              <span className="me-2 fs-6">Visible</span>
+              <Form.Check
+                type="checkbox"
+                checked={visible}
+                onChange={e => setVisible(e.target.checked)}
+                style={{ margin: 0 }}
+              />
+            </Form.Group>
+          </Col>
 
-            <Col className="d-flex justify-content-end">
-              <Button variant="primary" onClick={handleAdd}>
-                Add Field
-              </Button>
-            </Col>
-          </Row>
+          <Col className="d-flex justify-content-end">
+            <Button variant="primary" onClick={handleAdd}>
+              Add Field
+            </Button>
+          </Col>
+        </Row>
       </Card.Body>
     </Card>
   );

@@ -33,8 +33,6 @@ inventoryRouter.get("/:id/tags", tagController.getInventoryTags);
 
 inventoryRouter.get(
   "/:id/editors",
-  authMiddleware,
-  inventoryAccessMiddleware({ allowEditors: false }),
   inventoryController.getInventoryEditors
 );
 

@@ -1,6 +1,6 @@
-type RandomType = "BIT_20" | "BIT_32" | "DIGITS_6" | "DIGITS_9" | "GUID";
+export type RandomType = "BIT_20" | "BIT_32" | "DIGITS_6" | "DIGITS_9" | "GUID";
 
-type DateFormat = "YYYY" | "YYYYMMDD" | "YYYYMMDDHHmmss" | "YYYY_MM_DD" | "DDMMYYYY";
+export type DateFormat = "YYYY" | "YYYYMMDD" | "YYYYMMDDHHmmss" | "YYYY_MM_DD" | "DDMMYYYY";
 
 export interface ICustomIdType {
   id: string;

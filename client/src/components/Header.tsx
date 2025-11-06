@@ -1,5 +1,6 @@
-import { Navbar, Container, Button, FormControl, Nav, Dropdown } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { Navbar, Container, Button, FormControl, Nav, Dropdown, Form } from "react-bootstrap";
+import { House } from "react-bootstrap-icons";
+import { useNavigate, Link } from "react-router-dom";
 import { useThisUserStore } from "../store/thisUserStore";
 import { useSettingsStore } from "../store/useSettingsStore";
 import { useTranslation } from "react-i18next";
@@ -12,7 +13,7 @@ import { useInputValue } from "../utils/hooks/useInputValue";
 import { useEffect, useState } from "react";
 import useSearchStore from "../store/searchStore";
 import useInventoryListStore from "../store/inventoryListStore";
-import { Link } from "react-router-dom";
+import { FaHome } from "react-icons/fa";
 
 interface HeaderProps {
   searchPlaceholder?: string;
@@ -27,7 +28,6 @@ export default function Header({ searchPlaceholder }: HeaderProps) {
   const { searchTerm, setSearchTerm } = useSearchStore();
 
   const [showLogin, setShowLogin] = useState(false);
-
   const [localInput, setLocalInput, handleInputChange] = useInputValue(searchTerm);
   const debouncedInput = useDebounceValue(localInput, 500);
 
@@ -62,8 +62,12 @@ export default function Header({ searchPlaceholder }: HeaderProps) {
             className="position-relative d-flex justify-content-between align-items-center"
           >
             <div className="d-flex align-items-center gap-2">
-              <Button style={{ minWidth: "50px" }} variant="secondary" onClick={toggleTheme}>
-                {theme === "light" ? "☀️" : "🌑"}
+              <Button
+                variant="secondary"
+                style={{ minWidth: "50px" }}
+                onClick={() => navigate("/")}
+              >
+                <FaHome />
               </Button>
 
               {isAuth && (
@@ -86,7 +90,14 @@ export default function Header({ searchPlaceholder }: HeaderProps) {
               />
             )}
 
-            <Nav className="d-flex align-items-center">
+            <Nav className="d-flex align-items-center gap-2">
+              <Form.Check
+                type="switch"
+                id="themeSwitch"
+                label={theme === "light" ? "☀️" : "🌑"}
+                checked={theme === "dark"}
+                onChange={toggleTheme}
+              />
               <Dropdown>
                 <Dropdown.Toggle variant="outline-primary" className="me-2">
                   {language.toUpperCase()}

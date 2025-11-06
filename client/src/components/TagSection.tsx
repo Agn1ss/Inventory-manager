@@ -4,7 +4,6 @@ import TagButton from "./TagButton";
 import ApiErrorHandler from "../exeptions/apiErrorHandler";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import type { number } from "react-i18next/icu.macro";
 
 const TagSection: React.FC = () => {
   const { tagList, fetchTags, fetchInventoriesByTag, selectedTagName } = useInventoryListStore();

@@ -11,7 +11,7 @@ const InventoryInfoBox: React.FC<InventoryInfoBoxProps> = ({ inventoryData }) =>
   const { t } = useTranslation();
 
   return (
-    <div className="p-3 mb-3 border rounded bg-body-tertiary text-center ">
+    <div className="p-3 mb-2 border rounded bg-body-tertiary text-center ">
       <h5 className="mb-3 fw-semibold">{t("information")}</h5>
 
       <div className="mb-1 d-flex justify-content-center flex-wrap">

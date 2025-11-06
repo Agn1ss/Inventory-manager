@@ -11,11 +11,17 @@ import useSearchStore from "../store/searchStore";
 import { useTranslation } from "react-i18next";
 import InventoryInfoBox from "../components/boxes/inventoryInfo/InventoryInfoBox";
 import useInventoryListStore from "../store/inventoryListStore";
+import { useThisUserStore } from "../store/thisUserStore";
+
+type AccessLevel = "OWNER" | "EDITOR" | "NONE";
 
 export default function InventoryItemsPage() {
   const { id: inventoryId } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user, getInventoryAccessLevel } = useThisUserStore();
+  const [accessLevel, setAccessLevel] = useState<AccessLevel>("NONE");
+
   const {
     invData,
     items,
@@ -30,11 +36,23 @@ export default function InventoryItemsPage() {
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
   const { searchTerm } = useSearchStore();
 
+  const hasAccess = (levels: AccessLevel[]) => levels.includes(accessLevel);
+
+  useEffect(() => {
+    if (inventoryId && invData?.inventory.creatorId && user) {
+      getInventoryAccessLevel(inventoryId, invData.inventory.creatorId)
+        .then(level => setAccessLevel(level))
+        .catch(() => setAccessLevel("NONE"));
+    }
+  }, [inventoryId, invData?.inventory.creatorId, user]);
+
   useEffect(() => {
     if (inventoryId) {
-      fetchInventory(inventoryId);
+      fetchInventory(inventoryId).catch(err => {
+        toast.error(ApiErrorHandler.handle(err));
+      });
     } else {
-      toast.error("inventory not found");
+      toast.error(t("errors.inventory_not_found"));
       navigate(`/`);
     }
   }, [inventoryId]);
@@ -54,7 +72,7 @@ export default function InventoryItemsPage() {
       .map(([id]) => id);
 
     if (idsToDelete.length === 0) {
-      toast.error("Ничего не выбрано", { id: toastId });
+      toast.error(t("nothing_selected"), { id: toastId });
       return;
     }
 
@@ -111,6 +129,24 @@ export default function InventoryItemsPage() {
             <>
               <Col md={2}>
                 <InventoryInfoBox inventoryData={invData} />
+                {hasAccess(["OWNER"]) && (
+                  <>
+                    <Button
+                      variant="outline-primary"
+                      onClick={() => navigate(`/inventory/${inventoryId}/edit`)}
+                      className="mb-2"
+                    >
+                      {t("edit_inventory")}
+                    </Button>
+                    <Button
+                      variant="outline-danger"
+                      onClick={handleDeleteInventory}
+                      className="mb-2"
+                    >
+                      {t("delete_inventory")}
+                    </Button>
+                  </>
+                )}
               </Col>
 
               {itemsLoading ? (
@@ -121,45 +157,32 @@ export default function InventoryItemsPage() {
                 <Col md={8}>
                   <Container fluid className="mb-3">
                     <Row className="align-items-center">
-                      {items.length !== 0 && (
+                      {items.length !== 0 && hasAccess(["OWNER", "EDITOR"]) && (
                         <Col className="d-flex gap-2 px-0">
-                          <Button variant="outline-danger" onClick={handleDeleteSelected}>
+                          <Button variant="danger" onClick={handleDeleteSelected}>
                             {t("delete")}
                           </Button>
                         </Col>
                       )}
-                      <Col className="d-flex justify-content-end px-0">
-                        <Button variant="success">{t("add_item")}</Button>
-                      </Col>
+                      {hasAccess(["OWNER", "EDITOR"]) && (
+                        <Col className="d-flex justify-content-end px-0">
+                          <Button variant="success">{t("add_item")}</Button>
+                        </Col>
+                      )}
                     </Row>
                   </Container>
-                  {items.length === 0 ? (
+                  <InventoryItemsTableBox
+                    inventoryData={invData}
+                    itemsData={items}
+                    selectedRows={selectedRows}
+                    setSelectedRows={setSelectedRows}
+                  />
+                  {items.length === 0 && (
                     <h5 className="mb-3 fw-semibold">{t("no_results_found")}</h5>
-                  ) : (
-                    <InventoryItemsTableBox
-                      inventoryData={invData}
-                      itemsData={items}
-                      selectedRows={selectedRows}
-                      setSelectedRows={setSelectedRows}
-                    />
                   )}
                 </Col>
               )}
-              <Col md={2} className="mx-auto mb-4">
-                <Row className="m-2 mt-0">
-                  <Button
-                    variant="primary"
-                    onClick={() => navigate(`/inventory/${inventoryId}/edit`)}
-                  >
-                    {t("edit_inventory")}
-                  </Button>
-                </Row>
-                <Row className="m-2">
-                  <Button variant="danger" onClick={handleDeleteInventory}>
-                    {t("delete_inventory")}
-                  </Button>
-                </Row>
-              </Col>
+              <Col md={2} className="mx-auto mb-4"></Col>
             </>
           )}
         </Row>

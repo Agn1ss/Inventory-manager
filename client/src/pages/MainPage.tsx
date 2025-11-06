@@ -7,12 +7,12 @@ import InventorySection from "../components/InventorySection";
 import TagSection from "../components/TagSection";
 import useInventoryListStore from "../store/inventoryListStore";
 import useSearchStore from "../store/searchStore";
-import { COLUMNS } from "../utils/data/names";
 import toast from "react-hot-toast";
 import ApiErrorHandler from "../exeptions/apiErrorHandler";
 import SearchResultSection from "../components/SearchResultSection";
 import type InventorylistDataResponse from "../models/response/InventorylistDataResponse";
 import InventoryTableBox from "../components/boxes/inventoryTable/InventoryTableBox";
+import { COLUMNS } from "../utils/data/names";
 
 interface InventoryListState {
   data: InventorylistDataResponse[];
