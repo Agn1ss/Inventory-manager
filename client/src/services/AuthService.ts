@@ -25,4 +25,12 @@ export default class AuthService {
       throw error;
     }
   }
+
+  static async fetchCurrentUser() {
+    try {
+      return await $api.get<AuthResponse>("/oauth/me");
+    } catch (error) {
+      throw error;
+    }
+  }
 }

@@ -22,7 +22,7 @@ interface HeaderProps {
 export default function Header({ searchPlaceholder }: HeaderProps) {
   const navigate = useNavigate();
   const { theme, toggleTheme, language, setLanguage } = useSettingsStore();
-  const { user, isAuth, logout } = useThisUserStore();
+  const { user, isAuth, logout, fetchCurrentUser } = useThisUserStore();
   const { t, i18n } = useTranslation();
   const { clearSelectedTagName } = useInventoryListStore();
   const { searchTerm, setSearchTerm } = useSearchStore();
@@ -30,6 +30,10 @@ export default function Header({ searchPlaceholder }: HeaderProps) {
   const [showLogin, setShowLogin] = useState(false);
   const [localInput, setLocalInput, handleInputChange] = useInputValue(searchTerm);
   const debouncedInput = useDebounceValue(localInput, 500);
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []);
 
   useEffect(() => {
     setSearchTerm(debouncedInput);

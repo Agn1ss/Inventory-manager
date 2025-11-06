@@ -43,6 +43,23 @@ class UserController {
     }
   }
 
+  async loginOAuth(req, res, next) {
+    try {
+      const userData = await userService.loginOAuth(req.user);
+
+      res.cookie("refreshToken", userData.refreshToken, {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+      });
+
+      const frontendUrl = process.env.FRONTEND_URL;
+      res.redirect(frontendUrl);
+    } catch (err) {
+      console.error(err);
+      res.redirect("/api/oauth/failed");
+    }
+  }
+
   async logout(req, res, next) {
     try {
       const { refreshToken } = req.cookies;

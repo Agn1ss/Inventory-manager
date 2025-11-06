@@ -11,6 +11,7 @@ interface UserState {
   user: IUser | null;
   isAuth: boolean;
   setUser: (user: IUser) => void;
+  fetchCurrentUser: () => Promise<void>; // новый метод
   login: (name: string, email: string, password: string) => Promise<void>;
   registration: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -30,6 +31,15 @@ export const useThisUserStore = create<UserState>()(
         isAuth: false,
 
         setUser: user => set({ user, isAuth: true }),
+
+        fetchCurrentUser: async () => {
+          try {
+            const response = await AuthService.fetchCurrentUser();
+            set({ user: response.data.user, isAuth: true });
+          } catch (err) {
+            set({ user: null, isAuth: false });
+          }
+        },
 
         login: async (name, email, password) => {
           const response = await AuthService.login(name, email, password);
