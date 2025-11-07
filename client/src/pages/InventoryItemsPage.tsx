@@ -30,6 +30,7 @@ export default function InventoryItemsPage() {
     fetchInventory,
     fetchThisInventoryItems,
     deleteItems,
+    createItem,
     clearInventory,
   } = useThisInventoryStore();
   const { deleteUserInventories } = useInventoryListStore();
@@ -65,6 +66,20 @@ export default function InventoryItemsPage() {
     });
   }, [inventoryId, searchTerm]);
 
+
+  const handleAddItem = async () => {
+    if (!inventoryId) return;
+    const toastId = toast.loading(t("loading"));
+    try {
+      await createItem(inventoryId);
+      toast.success(t("item_created_successfully"), { id: toastId });
+    } catch (err) {
+      const message = ApiErrorHandler.handle(err);
+      toast.error(message, { id: toastId });
+    }
+  };
+
+
   const handleDeleteSelected = async () => {
     const toastId = toast.loading(t("loading"));
     const idsToDelete = Object.entries(selectedRows)
@@ -86,6 +101,7 @@ export default function InventoryItemsPage() {
       toast.error(message, { id: toastId });
     }
   };
+
 
   const handleDeleteInventory = async () => {
     const toastId = toast.loading(t("loading"));
@@ -112,7 +128,7 @@ export default function InventoryItemsPage() {
               <Spinner animation="border" />
             </Col>
           ) : (
-            <Col md={8} className="mx-auto mb-4">
+            <Col md={6} className="mx-auto mb-4">
               <h2>{invData.inventory.title}</h2>
               {invData.inventory.description ? (
                 <MarkdownTooltipTrigger content={invData.inventory.description}>
@@ -134,14 +150,14 @@ export default function InventoryItemsPage() {
                     <Button
                       variant="outline-primary"
                       onClick={() => navigate(`/inventory/${inventoryId}/edit`)}
-                      className="mb-2"
+                      className="mb-2 w-100"
                     >
                       {t("edit_inventory")}
                     </Button>
                     <Button
                       variant="outline-danger"
                       onClick={handleDeleteInventory}
-                      className="mb-2"
+                      className="mb-2 w-100"
                     >
                       {t("delete_inventory")}
                     </Button>
@@ -166,7 +182,9 @@ export default function InventoryItemsPage() {
                       )}
                       {hasAccess(["OWNER", "EDITOR"]) && (
                         <Col className="d-flex justify-content-end px-0">
-                          <Button variant="success">{t("add_item")}</Button>
+                          <Button variant="success" onClick={handleAddItem}>
+                            {t("add_item")}
+                          </Button>
                         </Col>
                       )}
                     </Row>

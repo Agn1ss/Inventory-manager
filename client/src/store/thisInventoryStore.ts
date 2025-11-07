@@ -8,6 +8,8 @@ import type { ITag } from "../models/interface/ITag";
 import tagService from "../services/tagService";
 import findNextOrder from "../utils/functions/findNextOrder";
 import type { ICustomIdType } from "../models/interface/ICustomIdType";
+import type { IUser } from "../models/interface/IUser";
+import UserService from "../services/UserService";
 
 export type FieldState = "NONE" | "NOT_VISIBLE" | "VISIBLE";
 
@@ -27,17 +29,24 @@ interface ThisInventoryState {
   itemsLoading: boolean;
   tagsLoading: boolean;
 
+  editors: IUser[];
+  editorsLoading: boolean;
+  fetchInventoryEditors: (inventoryId: string) => Promise<void>;
+
   fetchInventory: (id: string) => Promise<void>;
   createInventory: () => Promise<void>;
   updateInventory: () => Promise<void>;
+
+  deleteItems: (inventoryId: string, itemIds: string[]) => Promise<void>;
+  createItem: (inventoryId: string) => Promise<void>;
   fetchThisInventoryItems: (
     id: string,
     search?: string,
     skip?: number,
     take?: number
   ) => Promise<void>;
+  
   fetchInventoryTags: (inventoryId: string) => Promise<void>;
-  deleteItems: (inventoryId: string, itemIds: string[]) => Promise<void>;
   clearInventory: () => void;
 
   updateTitle: (title: string) => void;
@@ -63,6 +72,22 @@ const useThisInventoryStore = create<ThisInventoryState>((set, get) => ({
   loading: false,
   itemsLoading: false,
   tagsLoading: false,
+
+  editors: [],
+  editorsLoading: false,
+
+  fetchInventoryEditors: async (inventoryId: string) => {
+    set({ editorsLoading: true });
+    try {
+      const response = await UserService.fetchInventoryEditors(inventoryId, "", 0, 100, "name");
+      set({ editors: response.data });
+    } catch (err) {
+      console.error("Failed to fetch inventory editors:", err);
+      set({ editors: [] });
+    } finally {
+      set({ editorsLoading: false });
+    }
+  },
 
   fetchInventory: async (id: string) => {
     set({ loading: true });
@@ -102,7 +127,6 @@ const useThisInventoryStore = create<ThisInventoryState>((set, get) => ({
     try {
       await InventoryService.updateInventory(invUpdateData.inventory.id, invUpdateData);
       set({ invData: invUpdateData });
-
     } finally {
       set({ loading: false });
     }
@@ -113,6 +137,18 @@ const useThisInventoryStore = create<ThisInventoryState>((set, get) => ({
     try {
       const response = await ItemService.getItems(id, search, skip, take);
       set({ items: response.data });
+    } finally {
+      set({ itemsLoading: false });
+    }
+  },
+
+  createItem: async (inventoryId: string) => {
+    set({ itemsLoading: true });
+    try {
+      const response = await ItemService.createItem(inventoryId);
+      set(state => ({
+        items: [response.data, ...state.items],
+      }));
     } finally {
       set({ itemsLoading: false });
     }

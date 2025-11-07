@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import type { IItem } from "../../../models/interface/IItem";
 import getFieldValue from "../../../utils/functions/getCustomFieldValue";
+import getTextShorted from "../../../utils/functions/getTextShorted";
+import MarkdownTooltipTrigger from "../../MarkdownTooltipTrigger";
 
 type ItemRowProps = {
   row: IItem;
@@ -26,18 +28,28 @@ export default function ItemRow({
     onSelectChange?.(row.id, e.target.checked);
 
   return (
-    <tr onClick={handleClick} className={`align-middle ${checked ? "table-active" : ""}`} style={{ cursor: "pointer" }}>
+    <tr
+      onClick={handleClick}
+      className={`align-middle ${checked ? "table-active" : ""}`}
+      style={{ cursor: "pointer" }}
+    >
       {withCheckbox && (
-        <td onClick={(e) => e.stopPropagation()}>
+        <td onClick={e => e.stopPropagation()}>
           <input type="checkbox" checked={checked} onChange={handleChange} />
         </td>
       )}
-      {withCustomId && <td>{row.customId}</td>}
+      {withCustomId && (
+        <td className="text-start">
+          <MarkdownTooltipTrigger content={row.customId}>
+            {getTextShorted(row.customId, 20)}
+          </MarkdownTooltipTrigger>
+        </td>
+      )}
       {visibleKeys.map(key => {
         const value = getFieldValue(row.customFields, key);
         return value !== null ? <td key={key}>{value}</td> : null;
       })}
-      <td>{row.creatorName}</td>
+      <td className="text-end">{row.creatorName}</td>
     </tr>
   );
 }

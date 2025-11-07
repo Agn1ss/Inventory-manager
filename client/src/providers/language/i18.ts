@@ -61,6 +61,7 @@ const resources = {
       delete_selected_fields: "Delete selected fields",
       custom_fields: "Custom fields",
       save: "Save",
+      item_created_successfully: "Item added successfully",
       custom_fields_table: {
         name: "Name",
         description: "Description",
@@ -172,6 +173,7 @@ const resources = {
       no_description: "Описание отсутствует",
       nothing_selected: "Ничего не выбрано",
       delete_selected_fields: "Удалить выбранные поля",
+      item_created_successfully: "Элемент успешно создан",
       custom_fields: "Кастомные поля",
       save: "Сохранить",
       custom_fields_table: {

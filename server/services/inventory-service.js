@@ -4,6 +4,7 @@ import filterKeysByCondition from "../utils/filterKeysByCondition.js";
 import InventoryDto from "../dtos/inventory-dto.js";
 import tagService from "./tag-service.js";
 import ApiError from "../exceptions/api-error.js";
+import UserDto from "../dtos/user-dto.js";
 
 class InventoryService {
   async create(creatorId) {
@@ -216,9 +217,10 @@ class InventoryService {
     }
   
     const editors = await prisma.inventoryEditor.findMany(queryOptions);
-    return editors.map(e => e.user);
+    return editors.map(e => new UserDto(e.user));
   }
 
+  
   async searchInventories({ search = "", skip = 0, take = 5, newest = false }) {
     const queryOptions = {
       ...(search

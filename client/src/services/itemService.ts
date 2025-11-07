@@ -13,24 +13,8 @@ export default class ItemService {
     return $api.post(`/inventory/${inventoryId}/items/delete-many`, { itemIds });
   }
 
-  
-  // static create(inventoryId: string) {
-  //   return $api.post(`/inventory/${inventoryId}/items/create`);
-  // }
+  static async createItem(inventoryId: string) {
+    return $api.post<IItem>(`/inventory/${inventoryId}/items/create`);
+  }
 
-  // static getOne(inventoryId: string, itemId: string) {
-  //   return $api.get(`/inventory/${inventoryId}/items/${itemId}`);
-  // }
-
-  // static update(inventoryId: string, itemId: string, itemData: any) {
-  //   return $api.put(`/inventory/${inventoryId}/items/${itemId}`, itemData);
-  // }
-
-  // static delete(inventoryId: string, itemId: string) {
-  //   return $api.delete(`/inventory/${inventoryId}/items/${itemId}`);
-  // }
-
-  // static like(itemId: string) {
-  //   return $api.post(`/items/${itemId}/like`);
-  // }
 }

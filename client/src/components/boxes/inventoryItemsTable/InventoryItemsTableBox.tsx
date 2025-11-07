@@ -67,13 +67,13 @@ export default function InventoryItemsTableBox({
               style={{ cursor: "pointer" }}
             />
           </th>
-          {inventoryData.customIdType.isTypeNotEmpty && <th>{t("custom-id")}</th>}
+          {inventoryData.customIdType.isTypeNotEmpty && <th className="text-start">{t("custom-id")}</th>}
           {visibleFields.map(f => (
             <th key={f.key}>
               <MarkdownTooltipTrigger content={f.description}>{f.name}</MarkdownTooltipTrigger>
             </th>
           ))}
-          <th>{t("creator")}</th>
+          <th className="text-end">{t("creator")}</th>
         </tr>
       </thead>
 
