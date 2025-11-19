@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import InventoryInfoBox from "../components/boxes/inventoryInfo/InventoryInfoBox";
 import useInventoryListStore from "../store/inventoryListStore";
 import { useThisUserStore } from "../store/thisUserStore";
+import { HelpButton } from "../components/common/HelpButton";
 
 type AccessLevel = "OWNER" | "EDITOR" | "NONE";
 
@@ -205,6 +206,7 @@ export default function InventoryItemsPage() {
           )}
         </Row>
       </Container>
+      {invData && user && <HelpButton user={user} pageLink={window.location.href} inventory={invData.inventory.title}/>}
     </>
   );
 }

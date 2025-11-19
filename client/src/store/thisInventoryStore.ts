@@ -34,7 +34,7 @@ interface ThisInventoryState {
   fetchInventoryEditors: (inventoryId: string) => Promise<void>;
 
   fetchInventory: (id: string) => Promise<void>;
-  createInventory: () => Promise<void>;
+  createInventory: () => Promise<InventoryResponse>;
   updateInventory: () => Promise<void>;
 
   deleteItems: (inventoryId: string, itemIds: string[]) => Promise<void>;
@@ -114,6 +114,7 @@ const useThisInventoryStore = create<ThisInventoryState>((set, get) => ({
     try {
       const response = await InventoryService.createInventory();
       set({ invData: response.data, invUpdateData: response.data });
+      return response.data;
     } finally {
       set({ loading: false });
     }

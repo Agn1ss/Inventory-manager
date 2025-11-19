@@ -22,7 +22,10 @@ export default function ModalBox({
 }: ModalBoxProps) {
   return (
     <Modal show={show} onHide={onClose} centered backdrop="static" size={size}>
-      <Modal.Body className="p-5" style={modalStyle}>
+      <Modal.Body
+        className={size === "sm" ? "p-4" : "p-5"}
+        style={modalStyle}
+      >
         {title && (
           <div className="mb-3 d-flex justify-content-between align-items-center">
             <h4 className="fw-bold mb-0">{title}</h4>
@@ -34,6 +37,7 @@ export default function ModalBox({
             ></button>
           </div>
         )}
+
         {children}
       </Modal.Body>
     </Modal>

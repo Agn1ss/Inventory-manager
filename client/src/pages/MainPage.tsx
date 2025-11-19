@@ -14,6 +14,8 @@ import type InventorylistDataResponse from "../models/response/InventorylistData
 import InventoryTableBox from "../components/boxes/inventoryTable/InventoryTableBox";
 import { COLUMNS } from "../utils/data/names";
 import { useThisUserStore } from "../store/thisUserStore";
+import { HelpButton } from "../components/common/HelpButton";
+import useThisInventoryStore from "../store/thisInventoryStore";
 
 interface InventoryListState {
   data: InventorylistDataResponse[];
@@ -24,7 +26,12 @@ export default function MainPage() {
   const { t } = useTranslation();
   const { searchTerm } = useSearchStore();
   const [searchData, setSearchData] = useState<InventoryListState>({ data: [], loading: true });
-  const {fetchCurrentUser} = useThisUserStore()
+  const { user } = useThisUserStore();
+  const { clearInventory } = useThisInventoryStore();
+
+  useEffect(() => {
+    clearInventory();
+  }, [])
 
   const {
     fetchSearchInventories,
@@ -36,10 +43,6 @@ export default function MainPage() {
     selectedTagName,
   } = useInventoryListStore();
 
-  // useEffect(() => {
-  //   console.log("fetch")
-  //   fetchCurrentUser();
-  // }, []);
 
   useEffect(() => {
     if (selectedTagName) {
@@ -72,7 +75,7 @@ export default function MainPage() {
               columns={COLUMNS}
               fetchData={fetchLatestInventories}
               loading={latestInventories.loading}
-              >
+            >
               <InventoryTableBox inventoriesData={latestInventories.data} />
             </InventorySection>
 
@@ -106,6 +109,7 @@ export default function MainPage() {
           </Col>
         </Row>
       </Container>
+      {user && <HelpButton user={user} pageLink={window.location.href}/>}
     </>
   );
 }

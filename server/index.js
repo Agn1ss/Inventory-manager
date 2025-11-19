@@ -7,6 +7,7 @@ import userRouter from "./routers/user-router.js";
 import oauthRouter from "./routers/oAuth-router.js";
 import errorMiddleware from "./middlewares/error-middleware.js";
 import inventoryRouter from "./routers/inventory-router.js";
+import integrationsRouter from "./routers/integrations-router.js";
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -21,6 +22,7 @@ app.use(cookieParser());
 
 app.use("/api/inventory", inventoryRouter)
 app.use("/api/oauth", oauthRouter);
+app.use("/api/integration", integrationsRouter);
 app.use("/api/", userRouter);
 app.use(errorMiddleware);
 

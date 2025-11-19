@@ -11,6 +11,8 @@ import useUpdateTrigger from "../utils/hooks/useUpdateTrigger";
 import FieldUpdateForm from "../components/FieldUpdateForm";
 import CustomIdUpdateForm from "../components/CustomIdUpdateForm";
 import type { ICustomIdType } from "../models/interface/ICustomIdType";
+import { HelpButton } from "../components/common/HelpButton";
+import { useThisUserStore } from "../store/thisUserStore";
 
 const pages = [
   { type: "inventory", titleKey: "inventory" },
@@ -23,6 +25,7 @@ export default function InventoryEditPage() {
   const { id: inventoryId } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useThisUserStore();
 
   const { updateTrigger, triggerUpdate: handleUpdate } = useUpdateTrigger({
     intervalMs: 1000 * 60000,
@@ -136,6 +139,7 @@ export default function InventoryEditPage() {
           )}
         </Row>
       </Container>
+      {invData && user && <HelpButton user={user} pageLink={window.location.href} inventory={invData.inventory.title}/>}
     </>
   );
 }

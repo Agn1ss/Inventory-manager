@@ -15,6 +15,8 @@ import InventoryTableBox from "../components/boxes/inventoryTable/InventoryTable
 import useThisInventoryStore from "../store/thisInventoryStore";
 import { useNavigate } from "react-router-dom";
 import { COLUMNS } from "../utils/data/names";
+import { HelpButton } from "../components/common/HelpButton";
+import { useThisUserStore } from "../store/thisUserStore";
 
 export default function UserPage() {
   const { t } = useTranslation();
@@ -27,7 +29,12 @@ export default function UserPage() {
     fetchUserEditableInventories,
     deleteUserInventories,
   } = useInventoryListStore();
-  const { createInventory, invData } = useThisInventoryStore();
+  const { createInventory, clearInventory, invData } = useThisInventoryStore();
+  const { user } = useThisUserStore();
+
+  useEffect(() => {
+    clearInventory();
+  }, []);
 
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
   const [currentPage, setCurrentPage] = useState<"my" | "editable">("my");
@@ -74,9 +81,9 @@ export default function UserPage() {
     const toastId = toast.loading(t("loading"));
     try {
       setSelectedRows({});
-      await createInventory();
+      const newInventory = await createInventory();
       toast.success("Inventory created successfully!", { id: toastId });
-      navigate(`/inventory/${invData?.inventory.id}/edit`);
+      navigate(`/inventory/${newInventory.inventory.id}/edit`);
     } catch (err) {
       const message = ApiErrorHandler.handle(err);
       toast.error(message, { id: toastId });
@@ -140,6 +147,7 @@ export default function UserPage() {
           </Col>
         </Row>
       </Container>
+      {user && <HelpButton user={user} pageLink={window.location.href} />}
     </>
   );
 }
